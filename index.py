@@ -1,26 +1,26 @@
 #imports
 import requests
 from termcolor import colored
-
-#Request to web
-urlOficial = "https://api-dolar-argentina.herokuapp.com/api/dolaroficial"
-urlBlue = "https://api-dolar-argentina.herokuapp.com/api/dolarblue"
-#global variables
-reqOficial = requests.get(urlOficial)
-data = reqOficial.json()
-ventaIniOficial = reqOficial.json()['venta']
-#function refresh
-def refreshDolar():
-    resp = requests.get(urlOficial)
-    data = resp.json()
-    return data;
+from bs4 import BeautifulSoup
+from time import sleep
+#get link of the page and text values
+url = requests.get('https://www.cronista.com/MercadosOnline/dolar.html')
+soup = BeautifulSoup(url.text, 'html.parser')
+# get the values of the page
+def getDolar():
+    resp = requests.get('https://www.cronista.com/MercadosOnline/dolar.html')
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    return soup
+# while loop to refresh the values
 while True:
-    if data['venta'] > ventaIniOficial:
-        print(colored('Dolar Oficial: \n Compra: ' + str(data['compra']) + ' Venta: ' + str(data['venta']) , 'green'))
-        data = refreshDolar()
-    if data['venta'] < ventaIniOficial:
-        print(colored('Dolar Oficial: \n Compra: ' + str(data['compra']) + ' Venta: ' + str(data['venta']), 'red'))
-        data = refreshDolar()
-    if data['venta'] == ventaIniOficial:
-        print('Dolar Oficial: \n Compra: ' + str(data['compra']) + ' Venta: ' + str(data['venta']) + ' Sec: ' + str(data['fecha'])[-2] + str(data['fecha'])[-1])
-        data = refreshDolar()
+    valores = soup.find_all('tr')    
+    for valor in valores:
+            #
+            if "BNA" in valor.a.text or "BLUE" in valor.a.text or "MEP" in valor.a.text:
+                venta = valor.find('div', class_='sell-value').text
+                compra = valor.find('div', class_='buy-value').text
+                print(valor.a.text)
+                print(colored('Venta: ' + venta, 'green') + '\n' + colored('Compra: ' + compra, 'red'))
+                soup = getDolar()
+                continue
+    sleep(5)
