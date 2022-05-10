@@ -1,4 +1,5 @@
 #imports
+#!/user/bin/env python3
 import requests
 from termcolor import colored
 from bs4 import BeautifulSoup
@@ -15,7 +16,7 @@ def getDolar():
 while True:
     valores = soup.find_all('tr')    
     for valor in valores:
-            #
+            #set values of BNA Blue and MEP
             if "BNA" in valor.a.text or "BLUE" in valor.a.text or "MEP" in valor.a.text:
                 venta = valor.find('div', class_='sell-value').text
                 compra = valor.find('div', class_='buy-value').text
